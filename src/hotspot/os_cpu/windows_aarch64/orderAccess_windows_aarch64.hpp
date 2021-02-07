@@ -27,7 +27,8 @@
 
 // Included in orderAccess.hpp header file.
 #include <atomic>
-using std::atomic_thread_fence;
+//https://docs.oracle.com/cd/E77782_01/html/E77803/atomic-thread-fence-3a.html
+using std::atomic_thread_fence;//内存重排序 在头文件<stdatomic.h>中定义
 #include <arm64intr.h>
 #include "vm_version_aarch64.hpp"
 #include "runtime/vm_version.hpp"
@@ -38,21 +39,28 @@ inline void OrderAccess::loadload()   { acquire(); }
 inline void OrderAccess::storestore() { release(); }
 inline void OrderAccess::loadstore()  { acquire(); }
 inline void OrderAccess::storeload()  { fence(); }
-
+//// The modes that align with C++11 are intended to
+    // follow the same semantics.
+    //memory_order_relaxed = 0,
+    //memory_order_acquire = 2,
+    //memory_order_release = 3,
+    //memory_order_acq_rel = 4,
+    //// Strong two-way memory barrier.
+   // memory_order_conservative = 8
 #define READ_MEM_BARRIER atomic_thread_fence(std::memory_order_acquire);
 #define WRITE_MEM_BARRIER atomic_thread_fence(std::memory_order_release);
 #define FULL_MEM_BARRIER atomic_thread_fence(std::memory_order_seq_cst);
-
+//loadload or loadstore
 inline void OrderAccess::acquire() {
-  READ_MEM_BARRIER;
+  READ_MEM_BARRIER;//读屏障
 }
-
+//storestore
 inline void OrderAccess::release() {
-  WRITE_MEM_BARRIER;
+  WRITE_MEM_BARRIER;//写屏障
 }
 
 inline void OrderAccess::fence() {
-  FULL_MEM_BARRIER;
+  FULL_MEM_BARRIER;//读写屏障
 }
 
 inline void OrderAccess::cross_modify_fence_impl() {

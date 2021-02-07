@@ -118,6 +118,7 @@ class AccessFlags {
   bool is_final       () const         { return (_flags & JVM_ACC_FINAL       ) != 0; }
   bool is_synchronized() const         { return (_flags & JVM_ACC_SYNCHRONIZED) != 0; }
   bool is_super       () const         { return (_flags & JVM_ACC_SUPER       ) != 0; }
+  //是否被 JVM_ACC_VOLATILE 关键字修饰
   bool is_volatile    () const         { return (_flags & JVM_ACC_VOLATILE    ) != 0; }
   bool is_transient   () const         { return (_flags & JVM_ACC_TRANSIENT   ) != 0; }
   bool is_native      () const         { return (_flags & JVM_ACC_NATIVE      ) != 0; }

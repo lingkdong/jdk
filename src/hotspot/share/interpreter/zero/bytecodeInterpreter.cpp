@@ -1434,6 +1434,7 @@ run:
       }
 
       /* 64-bit stores */
+      //64位操作系统store数据
 #define ARRAY_STOREFROM64(T, T2, stackSrc, extra)                                    \
       {                                                                              \
           ARRAY_INTRO(-4);                                                           \
@@ -1741,32 +1742,32 @@ run:
           }
 
           //
-          // Now store the result
+          // Now store the result 存储数据
           //
           int field_offset = cache->f2_as_index();
-          if (cache->is_volatile()) {
-            if (tos_type == itos) {
+          if (cache->is_volatile()) {//如果是 volatile修饰
+            if (tos_type == itos) { //int类型 put
               obj->release_int_field_put(field_offset, STACK_INT(-1));
-            } else if (tos_type == atos) {
+            } else if (tos_type == atos) {//object类型
               VERIFY_OOP(STACK_OBJECT(-1));
               obj->release_obj_field_put(field_offset, STACK_OBJECT(-1));
-            } else if (tos_type == btos) {
+            } else if (tos_type == btos) {//byte
               obj->release_byte_field_put(field_offset, STACK_INT(-1));
-            } else if (tos_type == ztos) {
+            } else if (tos_type == ztos) {//bool
               int bool_field = STACK_INT(-1);  // only store LSB
               obj->release_byte_field_put(field_offset, (bool_field & 1));
-            } else if (tos_type == ltos) {
+            } else if (tos_type == ltos) {// long
               obj->release_long_field_put(field_offset, STACK_LONG(-1));
-            } else if (tos_type == ctos) {
+            } else if (tos_type == ctos) {//char
               obj->release_char_field_put(field_offset, STACK_INT(-1));
-            } else if (tos_type == stos) {
+            } else if (tos_type == stos) {//short
               obj->release_short_field_put(field_offset, STACK_INT(-1));
-            } else if (tos_type == ftos) {
+            } else if (tos_type == ftos) {//float
               obj->release_float_field_put(field_offset, STACK_FLOAT(-1));
-            } else {
+            } else {//double
               obj->release_double_field_put(field_offset, STACK_DOUBLE(-1));
             }
-            OrderAccess::storeload();
+            OrderAccess::storeload();//storeload屏障
           } else {
             if (tos_type == itos) {
               obj->int_field_put(field_offset, STACK_INT(-1));
