@@ -916,7 +916,8 @@ UNSAFE_ENTRY(jobject, Unsafe_CompareAndExchangeReference(JNIEnv *env, jobject un
   oop res = HeapAccess<ON_UNKNOWN_OOP_REF>::oop_atomic_cmpxchg_at(p, (ptrdiff_t)offset, e, x);
   return JNIHandles::make_local(THREAD, res);
 } UNSAFE_END
-
+// AtomicInteger 中 nayive 方法 compareAndExchangeInt 实现
+//关键方法 atomic_cmpxchg
 UNSAFE_ENTRY(jint, Unsafe_CompareAndExchangeInt(JNIEnv *env, jobject unsafe, jobject obj, jlong offset, jint e, jint x)) {
   oop p = JNIHandles::resolve(obj);
   if (p == NULL) {

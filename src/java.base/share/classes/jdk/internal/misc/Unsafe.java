@@ -2469,6 +2469,7 @@ public final class Unsafe {
         int v;
         do {
             v = getIntVolatile(o, offset);
+            //while自旋  以空间换时间
         } while (!weakCompareAndSetInt(o, offset, v, v + delta));
         return v;
     }

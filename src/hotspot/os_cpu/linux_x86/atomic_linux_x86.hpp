@@ -72,6 +72,7 @@ inline T Atomic::PlatformCmpxchg<1>::operator()(T volatile* dest,
                                                 T exchange_value,
                                                 atomic_memory_order /* order */) const {
   STATIC_ASSERT(1 == sizeof(T));
+  //
   __asm__ volatile ("lock cmpxchgb %1,(%3)"
                     : "=a" (exchange_value)
                     : "q" (exchange_value), "a" (compare_value), "r" (dest)
@@ -86,6 +87,8 @@ inline T Atomic::PlatformCmpxchg<4>::operator()(T volatile* dest,
                                                 T exchange_value,
                                                 atomic_memory_order /* order */) const {
   STATIC_ASSERT(4 == sizeof(T));
+  // lock cmpxchgl 汇编指令
+  // 1.锁总线 2.防止指令重排序 3.缓存数据刷入内存
   __asm__ volatile ("lock cmpxchgl %1,(%3)"
                     : "=a" (exchange_value)
                     : "r" (exchange_value), "a" (compare_value), "r" (dest)
