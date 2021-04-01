@@ -101,6 +101,11 @@ public abstract class SelectorProvider {
                     return sp;
                 if ((sp = loadProviderAsService()) != null)
                     return sp;
+                /**
+                 * 调用DefaultSelectorProvider 构建 SelectorProvider
+                 * {@link sun.nio.ch.DefaultSelectorProvider}
+                 * 可以查看 linux下版本代码
+                 */
                 return sun.nio.ch.DefaultSelectorProvider.get();
             };
             return AccessController.doPrivileged(pa);

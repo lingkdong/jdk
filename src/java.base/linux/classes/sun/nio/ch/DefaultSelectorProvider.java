@@ -34,6 +34,7 @@ import java.security.PrivilegedAction;
 
 public class DefaultSelectorProvider {
     private static final SelectorProviderImpl INSTANCE;
+    //静态方法初始化 instance实例
     static {
         PrivilegedAction<SelectorProviderImpl> pa = EPollSelectorProvider::new;
         INSTANCE = AccessController.doPrivileged(pa);

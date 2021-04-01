@@ -50,6 +50,10 @@ import static sun.nio.ch.EPoll.EPOLL_CTL_MOD;
 class EPollSelectorImpl extends SelectorImpl {
 
     // maximum number of events to poll in one call to epoll_wait
+    //IOUtil.fdLimit() :系统对当前PID fd 限制数
+    //可以 cat /proc/$pid/limits 命令查看
+    //Limit                     Soft Limit           Hard Limit           Units
+    //Max open files            100002               100002               files
     private static final int NUM_EPOLLEVENTS = Math.min(IOUtil.fdLimit(), 1024);
 
     // epoll file descriptor
@@ -74,13 +78,14 @@ class EPollSelectorImpl extends SelectorImpl {
 
     EPollSelectorImpl(SelectorProvider sp) throws IOException {
         super(sp);
-
+        // epoll create
         this.epfd = EPoll.create();
+        //分配轮询事件数
         this.pollArrayAddress = EPoll.allocatePollArray(NUM_EPOLLEVENTS);
 
         try {
             this.eventfd = new EventFD();
-            IOUtil.configureBlocking(IOUtil.newFD(eventfd.efd()), false);
+            IOUtil.configureBlocking(IOUtil.newFD(eventfd.efd()), false);//非阻塞IO
         } catch (IOException ioe) {
             EPoll.freePollArray(pollArrayAddress);
             FileDispatcherImpl.closeIntFD(epfd);

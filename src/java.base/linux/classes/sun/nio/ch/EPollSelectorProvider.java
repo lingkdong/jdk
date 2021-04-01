@@ -33,6 +33,7 @@ public class EPollSelectorProvider
     extends SelectorProviderImpl
 {
     public AbstractSelector openSelector() throws IOException {
+        // 调用EPollSelectorImpl 构造函数 创建对象Selector对象
         return new EPollSelectorImpl(this);
     }
 
