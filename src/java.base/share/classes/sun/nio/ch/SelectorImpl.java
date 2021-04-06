@@ -200,6 +200,13 @@ public abstract class SelectorImpl
         }
     }
 
+    /**
+     * 注解要监听的实践
+     * @param ch
+     * @param ops
+     * @param attachment
+     * @return
+     */
     @Override
     protected final SelectionKey register(AbstractSelectableChannel ch,
                                           int ops,
@@ -212,7 +219,7 @@ public abstract class SelectorImpl
             k.attach(attachment);
 
         // register (if needed) before adding to key set
-        implRegister(k);
+        implRegister(k);//确保Selector未关闭连接
 
         // add to the selector's key set, removing it immediately if the selector
         // is closed. The key is not in the channel's key set at this point but
@@ -236,6 +243,7 @@ public abstract class SelectorImpl
      * be overridden by selector implementations as needed.
      */
     protected void implRegister(SelectionKeyImpl ski) {
+       // EPollSelectorImpl.ensureOpen
         ensureOpen();
     }
 

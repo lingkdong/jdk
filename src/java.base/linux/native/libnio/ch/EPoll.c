@@ -54,9 +54,20 @@ Java_sun_nio_ch_EPoll_dataOffset(JNIEnv* env, jclass clazz)
 {
     return offsetof(struct epoll_event, data);
 }
-
+/*
+*
+* c++代码 EPoll_create
+* linux 命令  man epoll_create1 可以查看系统命令
+* EPOLL_CLOEXEC
+    Set the close-on-exec (FD_CLOEXEC) flag on the new file descriptor.
+    See the description of the O_CLOEXEC flag in open(2) for reasons why this may  be  use‐ ful.
+    在线文档见 https://www.kernel.org/doc/man-pages/
+    https://man7.org/linux/man-pages/man2/epoll_create1.2.html
+*/
 JNIEXPORT jint JNICALL
 Java_sun_nio_ch_EPoll_create(JNIEnv *env, jclass clazz) {
+    //fd :file descriptor ,linux 一切系统皆文件
+    //创建一个epoll对象
     int epfd = epoll_create1(EPOLL_CLOEXEC);
     if (epfd < 0) {
         JNU_ThrowIOExceptionWithLastError(env, "epoll_create1 failed");

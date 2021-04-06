@@ -42,6 +42,7 @@ import java.nio.channels.spi.AbstractSelectionKey;
 public final class SelectionKeyImpl
     extends AbstractSelectionKey
 {
+    //句柄对象
     private static final VarHandle INTERESTOPS =
             ConstantBootstraps.fieldVarHandle(
                     MethodHandles.lookup(),
@@ -94,13 +95,20 @@ public final class SelectionKeyImpl
         return interestOps;
     }
 
+    /**
+     * 注册要监听的事件
+     * @param ops
+     * @return
+     */
     @Override
     public SelectionKey interestOps(int ops) {
         ensureValid();
         if ((ops & ~channel().validOps()) != 0)
             throw new IllegalArgumentException();
-        int oldOps = (int) INTERESTOPS.getAndSet(this, ops);
+        int oldOps = (int) INTERESTOPS.getAndSet(this, ops);//添加到集合中
         if (ops != oldOps) {
+            //集合中不存在 则注册 事件
+            //会调用 EPollSelectorImpl.setEventOps
             selector.setEventOps(this);
         }
         return this;

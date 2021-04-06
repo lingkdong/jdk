@@ -70,7 +70,7 @@ class EPollSelectorImpl extends SelectorImpl {
 
     // pending new registrations/updates, queued by setEventOps
     private final Object updateLock = new Object();
-    private final Deque<SelectionKeyImpl> updateKeys = new ArrayDeque<>();
+    private final Deque<SelectionKeyImpl> updateKeys = new ArrayDeque<>();//注册或更新的事件队列
 
     // interrupt triggering and clearing
     private final Object interruptLock = new Object();
@@ -79,6 +79,7 @@ class EPollSelectorImpl extends SelectorImpl {
     EPollSelectorImpl(SelectorProvider sp) throws IOException {
         super(sp);
         // epoll create
+        //调用EPoll类的create创建epfd;
         this.epfd = EPoll.create();
         //分配轮询事件数
         this.pollArrayAddress = EPoll.allocatePollArray(NUM_EPOLLEVENTS);
@@ -97,6 +98,7 @@ class EPollSelectorImpl extends SelectorImpl {
     }
 
     private void ensureOpen() {
+        // 父类方法 SelectorImpl->AbstractSelector.isOpen 判断选择器是否关闭
         if (!isOpen())
             throw new ClosedSelectorException();
     }

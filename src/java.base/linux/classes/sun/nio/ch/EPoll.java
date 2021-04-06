@@ -108,7 +108,7 @@ class EPoll {
     private static native int eventsOffset();
 
     private static native int dataOffset();
-
+    //调用本地方法 进行EPoll.create 查找本地方法EPoll_create 在文件 EPoll.c文件中
     static native int create() throws IOException;
 
     static native int ctl(int epfd, int opcode, int fd, int events);
