@@ -74,7 +74,23 @@ Java_sun_nio_ch_EPoll_create(JNIEnv *env, jclass clazz) {
     }
     return epfd;
 }
+/**
+*epoll_ctl 添加 删除或 修改 fd监听事件
+* // opcodes
+     static final int EPOLL_CTL_ADD  = 1;
+     static final int EPOLL_CTL_DEL  = 2;
+     static final int EPOLL_CTL_MOD  = 3;
+  man epoll_ctl
+     EPOLL_CTL_ADD
+                Register the target file descriptor fd on the epoll instance referred to by the file descriptor epfd and associate the event event with  the  internal  file
+                linked to fd.
+     EPOLL_CTL_MOD
+            Change the event event associated with the target file descriptor fd.
+     EPOLL_CTL_DEL
+            Remove (deregister) the target file descriptor fd from the epoll instance referred to by epfd.  The event is ignored and can be NULL (but see BUGS below).
 
+   https://man7.org/linux/man-pages/man2/epoll_ctl.2.html
+**/
 JNIEXPORT jint JNICALL
 Java_sun_nio_ch_EPoll_ctl(JNIEnv *env, jclass clazz, jint epfd,
                           jint opcode, jint fd, jint events)
@@ -88,7 +104,12 @@ Java_sun_nio_ch_EPoll_ctl(JNIEnv *env, jclass clazz, jint epfd,
     res = epoll_ctl(epfd, (int)opcode, (int)fd, &event);
     return (res == 0) ? 0 : errno;
 }
-
+/*
+EPoll_wait
+等待IO事件，timeout=-1 block 阻塞,timeout=0  return immediately 立即返回结果
+man epoll_wait
+https://man7.org/linux/man-pages/man2/epoll_wait.2.html
+*/
 JNIEXPORT jint JNICALL
 Java_sun_nio_ch_EPoll_wait(JNIEnv *env, jclass clazz, jint epfd,
                            jlong address, jint numfds, jint timeout)

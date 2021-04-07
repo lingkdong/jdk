@@ -112,6 +112,7 @@ public abstract class SelectorImpl
      * @param action  the action to perform, can be null
      * @param timeout timeout in milliseconds to wait, 0 to not wait, -1 to
      *                wait indefinitely
+     *  虚方法 doSelect 具体实现我们查看 linux  下运行版本 EPollSelectorImpl.doSelect
      */
     protected abstract int doSelect(Consumer<SelectionKey> action, long timeout)
         throws IOException;
@@ -121,11 +122,13 @@ public abstract class SelectorImpl
     {
         synchronized (this) {
             ensureOpen();
+            //有正在进行select 则报异常
             if (inSelect)
                 throw new IllegalStateException("select in progress");
             inSelect = true;
             try {
                 synchronized (publicSelectedKeys) {
+                    // 执行 select
                     return doSelect(action, timeout);
                 }
             } finally {
@@ -140,9 +143,12 @@ public abstract class SelectorImpl
             throw new IllegalArgumentException("Negative timeout");
         return lockAndDoSelect(null, (timeout == 0) ? -1 : timeout);
     }
-
+    /**
+     * Selector.select
+     */
     @Override
     public final int select() throws IOException {
+        //加锁 进行 select
         return lockAndDoSelect(null, -1);
     }
 

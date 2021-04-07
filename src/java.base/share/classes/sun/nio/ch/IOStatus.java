@@ -33,12 +33,12 @@ public final class IOStatus {
 
     private IOStatus() { }
 
-    @Native public static final int EOF = -1;              // End of file
-    @Native public static final int UNAVAILABLE = -2;      // Nothing available (non-blocking)
-    @Native public static final int INTERRUPTED = -3;      // System call interrupted
-    @Native public static final int UNSUPPORTED = -4;      // Operation not supported
-    @Native public static final int THROWN = -5;           // Exception thrown in JNI code
-    @Native public static final int UNSUPPORTED_CASE = -6; // This case not supported
+    @Native public static final int EOF = -1;              // End of file 文件结束
+    @Native public static final int UNAVAILABLE = -2;      // Nothing available (non-blocking) 无法使用
+    @Native public static final int INTERRUPTED = -3;      // System call interrupted 系统中断
+    @Native public static final int UNSUPPORTED = -4;      // Operation not supported 不支持操作
+    @Native public static final int THROWN = -5;           // Exception thrown in JNI code 出错
+    @Native public static final int UNSUPPORTED_CASE = -6; // This case not supported 不支持this case
 
     // The following two methods are for use in try/finally blocks where a
     // status value needs to be normalized before being returned to the invoker

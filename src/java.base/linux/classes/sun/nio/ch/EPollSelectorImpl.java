@@ -103,6 +103,18 @@ class EPollSelectorImpl extends SelectorImpl {
             throw new ClosedSelectorException();
     }
 
+    /**
+     *  @Native public static final int EOF = -1;              // End of file 文件结束
+     *     @Native public static final int UNAVAILABLE = -2;      // Nothing available (non-blocking) 无法使用
+     *     @Native public static final int INTERRUPTED = -3;      // System call interrupted 系统中断
+     *     @Native public static final int UNSUPPORTED = -4;      // Operation not supported 不支持操作
+     *     @Native public static final int THROWN = -5;           // Exception thrown in JNI code 出错
+     *     @Native public static final int UNSUPPORTED_CASE = -6; // This case not supported 不支持this case
+     * @param action
+     * @param timeout
+     * @return
+     * @throws IOException
+     */
     @Override
     protected int doSelect(Consumer<SelectionKey> action, long timeout)
         throws IOException
@@ -110,18 +122,28 @@ class EPollSelectorImpl extends SelectorImpl {
         assert Thread.holdsLock(this);
 
         // epoll_wait timeout is int
+        //设置epoll_wait 的超时时间
         int to = (int) Math.min(timeout, Integer.MAX_VALUE);
         boolean blocking = (to != 0);
         boolean timedPoll = (to > 0);
 
         int numEntries;
+        //EPoll.ctl: EPOLL_CTL_DEL,EPOLL_CTL_ADD,EPOLL_CTL_MOD
+        //添加删除或修改 epoll 的监听fd 事件
         processUpdateQueue();
+        //父类方法 SelectorImpl.processDeregisterQueue 注销fd事件和相关key
+        //1.implDereg
+        //2.selectedKeys.remove(ski);
+        // 3.keys.remove(ski);
+        //4.((SelChImpl)ch).kill();
+        deregister(ski);
         processDeregisterQueue();
         try {
             begin(blocking);
-
+            //轮询监听事件
             do {
                 long startTime = timedPoll ? System.nanoTime() : 0;
+                //epoll_wait等待监听事件
                 numEntries = EPoll.wait(epfd, pollArrayAddress, NUM_EPOLLEVENTS, to);
                 if (numEntries == IOStatus.INTERRUPTED && timedPoll) {
                     // timed poll interrupted so need to adjust timeout
@@ -132,7 +154,7 @@ class EPollSelectorImpl extends SelectorImpl {
                         numEntries = 0;
                     }
                 }
-            } while (numEntries == IOStatus.INTERRUPTED);
+            } while (numEntries == IOStatus.INTERRUPTED);//System call interrupted 系统中断
             assert IOStatus.check(numEntries);
 
         } finally {
@@ -162,6 +184,7 @@ class EPollSelectorImpl extends SelectorImpl {
                     if (newEvents != registeredEvents) {
                         if (newEvents == 0) {
                             // remove from epoll
+                            //Epoll.ctl方法
                             EPoll.ctl(epfd, EPOLL_CTL_DEL, fd, 0);
                         } else {
                             if (registeredEvents == 0) {
@@ -192,20 +215,22 @@ class EPollSelectorImpl extends SelectorImpl {
         int numKeysUpdated = 0;
         for (int i=0; i<numEntries; i++) {
             long event = EPoll.getEvent(pollArrayAddress, i);
-            int fd = EPoll.getDescriptor(event);
+            int fd = EPoll.getDescriptor(event);//获取fd
             if (fd == eventfd.efd()) {
-                interrupted = true;
+                interrupted = true;//如果是中断事件
             } else {
                 SelectionKeyImpl ski = fdToKey.get(fd);
                 if (ski != null) {
                     int rOps = EPoll.getEvents(event);
+                    //如果不是中断事件 则 加入处理程序
+                    //processReadyEvents 变量 查看是否在监听的key中 有这返回1 累加起来则是事件数
                     numKeysUpdated += processReadyEvents(rOps, ski, action);
                 }
             }
         }
 
         if (interrupted) {
-            clearInterrupt();
+            clearInterrupt();//清除中断
         }
 
         return numKeysUpdated;
