@@ -61,6 +61,16 @@ Java_sun_nio_ch_EPoll_dataOffset(JNIEnv* env, jclass clazz)
 * EPOLL_CLOEXEC
     Set the close-on-exec (FD_CLOEXEC) flag on the new file descriptor.
     See the description of the O_CLOEXEC flag in open(2) for reasons why this may  be  use‐ ful.
+    新文件描述符fd 设置执行关闭标识
+    参考 第二章节的open 命令  man 2 open
+       O_CLOEXEC (Since Linux 2.6.23)
+              Enable the close-on-exec flag for the new file descriptor.  Specifying this flag permits a program to avoid additional fcntl(2) F_SETFD  operations  to  set
+              the  FD_CLOEXEC  flag.   Additionally, use of this flag is essential in some multithreaded programs since using a separate fcntl(2) F_SETFD operation to set
+              the FD_CLOEXEC flag does not suffice to avoid race conditions where one thread opens a file descriptor at the same time as another  thread  does  a  fork(2)
+              plus execve(2).
+              1.先创建的fd指定 运行时关闭，避免程序运行时有其他 fd Set操作
+              2.某些多线程中必须使用FD_CLOEXEC操作
+              2.FD_CLOEXEC 不足以避免竞争，一个打开fd 另个线程可以打开文件进行fork
     在线文档见 https://www.kernel.org/doc/man-pages/
     https://man7.org/linux/man-pages/man2/epoll_create1.2.html
 */
@@ -84,11 +94,13 @@ Java_sun_nio_ch_EPoll_create(JNIEnv *env, jclass clazz) {
      EPOLL_CTL_ADD
                 Register the target file descriptor fd on the epoll instance referred to by the file descriptor epfd and associate the event event with  the  internal  file
                 linked to fd.
+                 1.将目标fd注册到epfd，2将事件与fd关联
      EPOLL_CTL_MOD
             Change the event event associated with the target file descriptor fd.
+            1.修改fd中的关联事件
      EPOLL_CTL_DEL
             Remove (deregister) the target file descriptor fd from the epoll instance referred to by epfd.  The event is ignored and can be NULL (but see BUGS below).
-
+            1.epfd中移除fd,且fd中关联事件被忽略可以是null
    https://man7.org/linux/man-pages/man2/epoll_ctl.2.html
 **/
 JNIEXPORT jint JNICALL

@@ -185,13 +185,18 @@ class EPollSelectorImpl extends SelectorImpl {
                         if (newEvents == 0) {
                             // remove from epoll
                             //Epoll.ctl方法
+                            //epfd: epoll file descriptor 可以看成是 epoll中的fd集合
                             EPoll.ctl(epfd, EPOLL_CTL_DEL, fd, 0);
                         } else {
                             if (registeredEvents == 0) {
                                 // add to epoll
+                                //向epoll fd中注册 fd,且fd 关联 InterestOps事件
+                                //fd->注册到epfd
+                                //event->关联到fd
                                 EPoll.ctl(epfd, EPOLL_CTL_ADD, fd, newEvents);
                             } else {
                                 // modify events
+                                //修改 fd关联的事件
                                 EPoll.ctl(epfd, EPOLL_CTL_MOD, fd, newEvents);
                             }
                         }
