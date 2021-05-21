@@ -119,7 +119,7 @@ Java_sun_nio_ch_UnixDomainSockets_bind0(JNIEnv *env, jclass clazz, jobject fdo, 
 
     if (unixSocketAddressToSockaddr(env, path, &sa, &sa_len) != 0)
         return;
-
+   // man bind
     rv = bind(fdval(env, fdo), (struct sockaddr *)&sa, sa_len);
     if (rv != 0) {
         handleSocketError(env, errno);

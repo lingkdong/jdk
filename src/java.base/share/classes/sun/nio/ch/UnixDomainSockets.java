@@ -161,7 +161,7 @@ class UnixDomainSockets {
     private static native boolean socketSupported();
 
     private static native int socket0() throws IOException;
-
+   //UnixDomainSockets_bind0
     private static native void bind0(FileDescriptor fd, byte[] path)
         throws IOException;
 
